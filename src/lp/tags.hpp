@@ -56,6 +56,13 @@ typedef SimpleTag<CachePolicy, 12> CachePolicyTag;
  */
 typedef SimpleTag<uint64_t, 13> CongestionMarkTag;
 
+/** \class HopCountTag
+ *  \brief a packet tag for HopCount field
+ *
+ * This tag can be attached to Interest, Data, Nack.
+ */
+typedef SimpleTag<uint64_t, 0x60000000> HopCountTag;
+
 } // namespace lp
 } // namespace ndn
 
