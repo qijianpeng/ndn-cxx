@@ -28,9 +28,9 @@
 #include "ndn-cxx-custom-logger.hpp"
 #else
 
-#include <boost/log/common.hpp>
-#include <boost/log/sources/logger.hpp>
 #include <atomic>
+
+#include "ns3/log.h"
 
 namespace ndn {
 namespace util {
@@ -63,7 +63,7 @@ parseLogLevel(const std::string& s);
 /** \brief represents a logger in logging facility
  *  \note User should declare a new logger with \p NDN_LOG_INIT macro.
  */
-class Logger : public boost::log::sources::logger_mt
+class Logger
 {
 public:
   explicit
@@ -98,15 +98,7 @@ private:
  *  symbols: `~`, `#`, `%`, `_`, `<`, `>`, `.`, `-`
  *  A logger name must not start or end with `.` or contain consecutive `.`
  */
-#define NDN_LOG_INIT(name) \
-  namespace { \
-    inline ::ndn::util::Logger& getNdnCxxLogger() \
-    { \
-      static ::ndn::util::Logger logger(BOOST_STRINGIZE(name)); \
-      return logger; \
-    } \
-  } \
-  struct ndn_cxx__allow_trailing_semicolon
+#define NDN_LOG_INIT(name) NS_LOG_COMPONENT_DEFINE(BOOST_STRINGIZE(name));
 
 /** \brief a tag that writes a timestamp upon stream output
  *  \code
@@ -123,51 +115,12 @@ struct LoggerTimestamp
 std::ostream&
 operator<<(std::ostream& os, const LoggerTimestamp&);
 
-#if (BOOST_VERSION >= 105900) && (BOOST_VERSION < 106000)
-// workaround Boost bug 11549
-#define NDN_BOOST_LOG(x) BOOST_LOG(x) << ""
-#else
-#define NDN_BOOST_LOG(x) BOOST_LOG(x)
-#endif
-
-#define NDN_LOG(lvl, lvlstr, expression) \
-  do { \
-    if (getNdnCxxLogger().isLevelEnabled(::ndn::util::LogLevel::lvl)) { \
-      NDN_BOOST_LOG(getNdnCxxLogger()) << ::ndn::util::LoggerTimestamp{} \
-        << " " BOOST_STRINGIZE(lvlstr) ": [" << getNdnCxxLogger().getModuleName() << "] " \
-        << expression; \
-    } \
-  } while (false)
-
-/** \brief log at TRACE level
- *  \pre A log module must be declared in the same translation unit.
- */
-#define NDN_LOG_TRACE(expression) NDN_LOG(TRACE, TRACE, expression)
-
-/** \brief log at DEBUG level
- *  \pre A log module must be declared in the same translation unit.
- */
-#define NDN_LOG_DEBUG(expression) NDN_LOG(DEBUG, DEBUG, expression)
-
-/** \brief log at INFO level
- *  \pre A log module must be declared in the same translation unit.
- */
-#define NDN_LOG_INFO(expression) NDN_LOG(INFO, INFO, expression)
-
-/** \brief log at WARN level
- *  \pre A log module must be declared in the same translation unit.
- */
-#define NDN_LOG_WARN(expression) NDN_LOG(WARN, WARNING, expression)
-
-/** \brief log at ERROR level
- *  \pre A log module must be declared in the same translation unit.
- */
-#define NDN_LOG_ERROR(expression) NDN_LOG(ERROR, ERROR, expression)
-
-/** \brief log at FATAL level
- *  \pre A log module must be declared in the same translation unit.
- */
-#define NDN_LOG_FATAL(expression) NDN_LOG(FATAL, FATAL, expression)
+#define NDN_LOG_TRACE(expression) NS_LOG_LOGIC(expression)
+#define NDN_LOG_DEBUG(expression) NS_LOG_DEBUG(expression)
+#define NDN_LOG_INFO(expression)  NS_LOG_INFO(expression)
+#define NDN_LOG_WARN(expression)  NS_LOG_ERROR(expression)
+#define NDN_LOG_ERROR(expression) NS_LOG_WARN(expression)
+#define NDN_LOG_FATAL(expression) NS_LOG_FATAL(expression)
 
 } // namespace util
 } // namespace ndn
