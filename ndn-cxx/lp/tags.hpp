@@ -24,6 +24,7 @@
 
 #include "ndn-cxx/lp/cache-policy.hpp"
 #include "ndn-cxx/lp/empty-value.hpp"
+#include "ndn-cxx/lp/geo-tag.hpp"
 #include "ndn-cxx/lp/prefix-announcement-header.hpp"
 #include "ndn-cxx/tag.hpp"
 
@@ -78,6 +79,13 @@ typedef SimpleTag<PrefixAnnouncementHeader, 15> PrefixAnnouncementTag;
  * This tag can be attached to Interest, Data, Nack.
  */
 typedef SimpleTag<uint64_t, 0x60000000> HopCountTag;
+
+/** \class GeoTag
+ *  \brief a packet tag for GeoTag field
+ *
+ * This tag can be attached to Interest, Data, Nack.
+ */
+class GeoTag; // 0x60000001, defined directly in geo-tag.hpp
 
 } // namespace lp
 } // namespace ndn
