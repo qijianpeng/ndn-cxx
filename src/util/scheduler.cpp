@@ -82,8 +82,8 @@ Scheduler::cancelEvent(const EventId& eventId)
 {
   if (eventId != nullptr) {
     ns3::Simulator::Remove(*eventId);
-    const_cast<EventId&>(eventId).reset();
     m_events.erase(eventId);
+    const_cast<EventId&>(eventId).reset();
   }
 }
 
