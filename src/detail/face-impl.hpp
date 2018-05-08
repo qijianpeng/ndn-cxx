@@ -31,8 +31,9 @@
 #include "../lp/tags.hpp"
 #include "../mgmt/nfd/command-options.hpp"
 #include "../mgmt/nfd/controller.hpp"
-#include "../transport/tcp-transport.hpp"
-#include "../transport/unix-transport.hpp"
+#include "../transport/transport.hpp"
+// #include "../transport/tcp-transport.hpp"
+// #include "../transport/unix-transport.hpp"
 #include "../util/config-file.hpp"
 #include "../util/logger.hpp"
 #include "../util/scheduler.hpp"
@@ -371,8 +372,7 @@ public: // IO routine
   ensureConnected(bool wantResume)
   {
     if (!m_face.m_transport->isConnected())
-      m_face.m_transport->connect(m_face.getIoService(),
-                                  [=] (const Block& wire) { m_face.onReceiveElement(wire); });
+      m_face.m_transport->connect([=] (const Block& wire) { m_face.onReceiveElement(wire); });
 
     if (wantResume && !m_face.m_transport->isReceiving()) {
       m_face.m_transport->resume();

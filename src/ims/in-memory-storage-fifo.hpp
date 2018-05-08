@@ -39,7 +39,7 @@ public:
   InMemoryStorageFifo(size_t limit = 10);
 
   explicit
-  InMemoryStorageFifo(boost::asio::io_service& ioService, size_t limit = 10);
+  InMemoryStorageFifo(DummyIoService& ioService, size_t limit = 10);
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
   /** @brief Removes one Data packet from in-memory storage based on FIFO

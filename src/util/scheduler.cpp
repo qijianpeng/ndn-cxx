@@ -46,7 +46,7 @@ namespace ndn {
 namespace util {
 namespace scheduler {
 
-Scheduler::Scheduler(boost::asio::io_service& ioService)
+Scheduler::Scheduler(DummyIoService& ioService)
   : m_scheduledEvent(m_events.end())
 {
 }

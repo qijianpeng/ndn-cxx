@@ -43,7 +43,7 @@ public:
   InMemoryStorageLfu(size_t limit = 10);
 
   explicit
-  InMemoryStorageLfu(boost::asio::io_service& ioService, size_t limit = 10);
+  InMemoryStorageLfu(DummyIoService& ioService, size_t limit = 10);
 
 NDN_CXX_PUBLIC_WITH_TESTS_ELSE_PROTECTED:
   /** @brief Removes one Data packet from in-memory storage based on LFU, i.e. evict the least

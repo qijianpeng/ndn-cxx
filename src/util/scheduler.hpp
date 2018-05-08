@@ -62,7 +62,7 @@ public:
   typedef EventCallback Event;
 
   explicit
-  Scheduler(boost::asio::io_service& ioService);
+  Scheduler(DummyIoService& ioService);
 
   ~Scheduler();
 
