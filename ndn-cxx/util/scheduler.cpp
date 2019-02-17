@@ -20,7 +20,6 @@
  */
 
 #include "ndn-cxx/util/scheduler.hpp"
-#include "ndn-cxx/util/impl/steady-timer.hpp"
 
 #include <boost/scope_exit.hpp>
 
@@ -91,11 +90,13 @@ Scheduler::EventQueueCompare::operator()(const shared_ptr<EventInfo>& a,
 }
 
 Scheduler::Scheduler(boost::asio::io_service& ioService)
-  : m_timer(make_unique<detail::SteadyTimer>(ioService))
 {
 }
 
-Scheduler::~Scheduler() = default;
+Scheduler::~Scheduler()
+{
+  cancelAllEvents();
+}
 
 EventId
 Scheduler::schedule(time::nanoseconds after, EventCallback callback)
@@ -121,7 +122,12 @@ Scheduler::cancelImpl(const shared_ptr<EventInfo>& info)
   }
 
   if (info->queueIt == m_queue.begin()) {
-    m_timer->cancel();
+    if (m_timerEvent) {
+      if (!m_timerEvent->IsExpired()) {
+        ns3::Simulator::Remove(*m_timerEvent);
+      }
+      m_timerEvent.reset();
+    }
   }
   m_queue.erase(info->queueIt);
 
@@ -134,27 +140,29 @@ void
 Scheduler::cancelAllEvents()
 {
   m_queue.clear();
-  m_timer->cancel();
+  if (m_timerEvent) {
+    if (!m_timerEvent->IsExpired()) {
+      ns3::Simulator::Remove(*m_timerEvent);
+    }
+    m_timerEvent.reset();
+  }
 }
 
 void
 Scheduler::scheduleNext()
 {
   if (!m_queue.empty()) {
-    m_timer->expires_from_now((*m_queue.begin())->expiresFromNow());
-    m_timer->async_wait([this] (const auto& error) { this->executeEvent(error); });
+    m_timerEvent = ns3::Simulator::Schedule(ns3::NanoSeconds((*m_queue.begin())->expiresFromNow().count()),
+                                            &Scheduler::executeEvent, this);
   }
 }
 
 void
-Scheduler::executeEvent(const boost::system::error_code& error)
+Scheduler::executeEvent()
 {
-  if (error) { // e.g., cancelled
-    return;
-  }
-
   m_isEventExecuting = true;
 
+  m_timerEvent.reset();
   BOOST_SCOPE_EXIT(this_) {
     this_->m_isEventExecuting = false;
     this_->scheduleNext();
