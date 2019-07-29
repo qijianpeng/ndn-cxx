@@ -111,8 +111,11 @@ typedef FieldDecl<field_location_tags::Header,
 BOOST_CONCEPT_ASSERT((Field<PrefixAnnouncementField>));
 
 typedef FieldDecl<field_location_tags::Header,
-                  uint64_t,
-                  tlv::HopCountTag> HopCountTagField;
+                  uint16_t,
+                  tlv::HopCountTag,
+                  false,
+                  NonNegativeIntegerTag,
+                  NonNegativeIntegerTag> HopCountTagField;
 BOOST_CONCEPT_ASSERT((Field<HopCountTagField>));
 
 typedef FieldDecl<field_location_tags::Header,
