@@ -128,6 +128,15 @@ typedef FieldDecl<field_location_tags::Header,
                   tlv::GeoTag> GeoTagField;
 BOOST_CONCEPT_ASSERT((Field<GeoTagField>));
 
+/** \class FunctionTagField
+ *  \brief a packet tag for FunctionTagField field
+ *
+ *  This tag can be attached to Interest, Data, Nack.
+ */
+typedef FieldDecl<field_location_tags::Header,
+		uint64_t, tlv::TlvFunction> FunctionTagField;
+BOOST_CONCEPT_ASSERT((Field<FunctionTagField>));
+
 /** \brief Declare the Fragment field.
  *
  *  The fragment (i.e. payload) is the bytes between two provided iterators. During encoding,
@@ -156,7 +165,8 @@ typedef boost::mpl::set<
   NonDiscoveryField,
   PrefixAnnouncementField,
   HopCountTagField,
-  GeoTagField
+  GeoTagField,
+  FunctionTagField
   > FieldSet;
 
 } // namespace lp

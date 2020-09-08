@@ -29,6 +29,17 @@ namespace nfd {
 
 const uint64_t INVALID_FACE_ID = 0;
 
+/**
+ * Constants used in SnakeComputing
+ */
+enum SnakeComputing:uint64_t{
+  DEFAULT = 0, //DEFAULT is none
+  FUNCTION_UNEXECUTED = 1,
+  FUNCTION_EXECUTED = 2,
+  FUNCTION_PARTIAL_EXECUTED = 3,
+};
+const std::string SNAKE_SEPARATOR = "snake";
+
 /** \ingroup management
  */
 enum FaceScope : uint8_t {

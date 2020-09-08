@@ -86,7 +86,13 @@ typedef SimpleTag<uint64_t, 0x60000000> HopCountTag;
  * This tag can be attached to Interest, Data, Nack.
  */
 class GeoTag; // 0x60000001, defined directly in geo-tag.hpp
-
+/**
+ * \class FuntionExecutedTag
+ * \brief a packet tag for FunctionExecutedTag
+ *
+ *  This tag can be attached to Interest, Data, Nack.
+ */
+typedef SimpleTag<uint64_t, 0x60000010> FunctionTag;
 } // namespace lp
 } // namespace ndn
 
