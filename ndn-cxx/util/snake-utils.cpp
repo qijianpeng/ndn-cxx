@@ -94,7 +94,7 @@ const std::uint16_t INVALID = 0;
 	 *      2. for concurrent execution, schedule method should be employed.
 	 * @param functionParameters a long number.
 	 */
-	void invoke(Data& data, std::string functionName, std::string functionParameters){
+	void functionInvoke(Data& data, std::string functionName, std::string functionParameters){
 		Resource der;
 		der.DeSerialize(functionParameters);
 		long millisecond = der.getCPU();
@@ -107,6 +107,9 @@ const std::uint16_t INVALID = 0;
         std::string results = "results";
         newData.setContent(::ndn::encoding::makeStringBlock(::ndn::tlv::Content, results));
     	  setFunctionExecuted(newData);
+	}
+	bool canExecuteFunction(Data &data){
+		return true;
 	}
 }
 }//namespace snake
