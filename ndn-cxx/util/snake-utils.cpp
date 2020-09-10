@@ -1,14 +1,15 @@
 #include "snake-utils.hpp"
 #include <ndn-cxx/lp/tags.hpp>
 #include <ndn-cxx/encoding/nfd-constants.hpp>
+#include <node-resources.hpp>
 
 #include <tuple>
 #include <thread>
 #include <chrono>
 
 namespace ndn{
-namespace util{
 namespace snake{
+namespace util{
 
 const std::uint16_t INVALID = 0;
 	bool isFunctionExecuted(const Interest& interest){
@@ -68,18 +69,20 @@ const std::uint16_t INVALID = 0;
 
 	/**
 	 * Extract function name and its parameters.
-	 * \c str format:  <tt> ndn:://dataName/functionName/cpu=100,m=20 </tt>
+	 * \c str format:  <tt> ndn:://dataName/snake/functionName/{\"cpu\":100, \"mem\":20} </tt>
+	 * 
 	 */
 	std::tuple<std::string, std::string> extractFunctionNameAndParameters(std::string& str){
       if(&str == nullptr) return std::make_tuple(nullptr, nullptr);
       //
-      int functionStartPos = str.find(ndn::nfd::SNAKE_SEPARATOR, 0) + 6;
+      int functionStartPos = str.find(ndn::nfd::SNAKE_SEPARATOR, 0) + ndn::nfd::SNAKE_SEPARATOR.length() + 1;
       std::string functionAndBehind = str.substr(functionStartPos);
       int functionEndPos = functionAndBehind.find_first_of("/");
       std::string functionName(functionAndBehind, 0, functionEndPos);
 			//TODO use JSON object instead.
-			std::string parameters = functionAndBehind.substr(functionEndPos);
-			parameters
+			std::string parametersAndBehind = functionAndBehind.substr(functionEndPos + 1);
+			int paramentersEndPos = parametersAndBehind.find_first_of("/");
+			std::string parameters(parametersAndBehind, 0, paramentersEndPos);
       return std::make_tuple(functionName, parameters);
 	}
 
@@ -87,12 +90,14 @@ const std::uint16_t INVALID = 0;
   /**
 	 * FIXME(qjp): now we just sleep a specefic time dual.
 	 * 
-	 * TODO 1. use Object Serialization and transfer method.
-	 *      2. try reflect mechanism.
+	 * TODO 1. try reflect mechanism.
+	 *      2. for concurrent execution, schedule method should be employed.
 	 * @param functionParameters a long number.
 	 */
 	void invoke(Data& data, std::string functionName, std::string functionParameters){
-		long millisecond = std::stoi(functionParameters);
+		Resource der;
+		der.DeSerialize(functionParameters);
+		long millisecond = der.getCPU();
 		std::this_thread::sleep_for(std::chrono::milliseconds(millisecond));
 	}
 

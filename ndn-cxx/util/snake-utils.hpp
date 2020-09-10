@@ -11,8 +11,8 @@
 #include "ndn-cxx/interest.hpp"
 
 namespace ndn{
-namespace util{
 namespace snake{
+namespace util{
 /**
  * Check the function in the \c interest is executed or not.
  * This function can be invoked on the Interest Processing

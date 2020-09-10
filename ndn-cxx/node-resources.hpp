@@ -37,13 +37,16 @@
 #include <iostream>
 #include <stdexcept>
 
-using namespace rapidjson;
+namespace ndn{
+namespace snake{
+  using namespace rapidjson;
 //TODO(qjp): Add a static method to get the 
 //           current system avaliable resources.
 class Resource{
   public:
     static const uint64_t DEFAULT_AVALIABLE_CPU = 10000l;
     static const uint64_t DEFAULT_AVALIABLE_MEM = 10000l;
+
     Resource(const uint64_t cpu, const uint64_t mem):_cpu(cpu), _mem(mem){}
     Resource(const Resource& res):_cpu(res._cpu), _mem(res._mem){}
 
@@ -128,3 +131,5 @@ class Resource{
     uint64_t _cpu;
     uint64_t _mem;
 };
+}//namespace snake
+}//namespace ndn
