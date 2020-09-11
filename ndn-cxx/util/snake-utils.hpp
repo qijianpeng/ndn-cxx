@@ -24,7 +24,7 @@ bool isFunctionExecuted(const Interest& interest);
  * This function can be invoked on the Interest Processing
  * Path.
  */
-void setFunctionExecuted(const Interest& interest);
+void setFunctionExecuted(Interest& interest);
 /**
  * Remove/Reset the function flag in the \c interest.
  * This function can be invoked on the Interest Processing
@@ -37,18 +37,17 @@ void removeFunctionTag(const Interest& interest);
  * Path.
  */
 bool isFunctionExecuted(const Data& data);
-/**
- * Set the function in the \c data as executed.
- * This function can be invoked on the Data Processing
- * Path.
- */
-void setFunctionExecuted(const Data& data);
+
 /**
  * Remove/Reset the function flag in the \c data.
  * This function can be invoked on the Data Processing
  * Path.
  */
 void removeFunctionTag(const Data& data);
+std::tuple<std::string, std::string> extractFunctionNameAndParameters(std::string& str);
+void functionInvoke(const Data& data, std::string functionName, std::string functionParameters);
+bool canExecuteFunction(const Data &data);
+void afterFunctionInvoke(const Data& data, Data& newData);
 }
 }//namespace snake
 } //namespace ndn

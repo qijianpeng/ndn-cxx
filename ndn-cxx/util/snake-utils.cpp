@@ -42,10 +42,12 @@ const std::uint16_t INVALID = 0;
 	  return false;
 	}
 
-	void markFunctionAsExecuted(const Interest& interest){
+	void markFunctionAsExecuted(Interest& interest){
 	  interest.setTag(make_shared<lp::FunctionTag>(nfd::SnakeComputing::FUNCTION_EXECUTED));
 	}
-
+ 	void markFunctionAsExecuted(Data& data){
+	  data.setTag(make_shared<lp::FunctionTag>(nfd::SnakeComputing::FUNCTION_EXECUTED));
+	}
 	void removeFunctionTag(const Interest& interest){
 	  auto tag = interest.getTag<lp::FunctionTag>();
 	  if (tag != nullptr) {
@@ -94,21 +96,21 @@ const std::uint16_t INVALID = 0;
 	 *      2. for concurrent execution, schedule method should be employed.
 	 * @param functionParameters a long number.
 	 */
-	void functionInvoke(Data& data, std::string functionName, std::string functionParameters){
+	void functionInvoke(const Data& data, std::string functionName, std::string functionParameters){
 		Resource der;
 		der.DeSerialize(functionParameters);
 		long millisecond = der.getCPU();
 		std::this_thread::sleep_for(std::chrono::milliseconds(millisecond));
 	}
 
-	void afterFunctionInvoke(Data& data, Data& newData){
+	void afterFunctionInvoke(const Data& data, Data& newData){
         newData.wireDecode(data.wireEncode());
         //newData.resetWire();
         std::string results = "results";
         newData.setContent(::ndn::encoding::makeStringBlock(::ndn::tlv::Content, results));
-    	  setFunctionExecuted(newData);
+    	  markFunctionAsExecuted(newData);
 	}
-	bool canExecuteFunction(Data &data){
+	bool canExecuteFunction(const Data &data){
 		return true;
 	}
 }
