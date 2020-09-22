@@ -30,6 +30,7 @@ void setFunctionExecuted(Interest& interest);
  * This function can be invoked on the Interest Processing
  * Path.
  */
+void markFunctionAsUnexecuted(Interest& interest);
 void removeFunctionTag(const Interest& interest);
 /**
  * Check the function in the \c data is executed or not.
@@ -47,7 +48,11 @@ void removeFunctionTag(const Data& data);
 std::tuple<std::string, std::string> extractFunctionNameAndParameters(std::string& str);
 void functionInvoke(const Data& data, std::string functionName, std::string functionParameters);
 bool canExecuteFunction(const Data &data);
-void afterFunctionInvoke(const Data& data, Data& newData);
+void afterFunctionInvoke(Data& newData);
+bool isBelong2SnakeSystem(const Interest& interest);
+bool isBelong2SnakeSystem(const Data& data);
+shared_ptr<Data> cloneData(const Data& data);
+std::string unescape( std::string str);
 }
 }//namespace snake
 } //namespace ndn

@@ -39,6 +39,7 @@ enum SnakeComputing:uint64_t{
   FUNCTION_PARTIAL_EXECUTED = 3,
 };
 const std::string SNAKE_SEPARATOR = "snake";
+const std::string DEFAULT_OPERATOR_REQUIREMENTS = "{\"cpu\":100, \"mem\":20}";
 
 /** \ingroup management
  */
