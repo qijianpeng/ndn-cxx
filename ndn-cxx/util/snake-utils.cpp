@@ -49,25 +49,35 @@ const std::uint16_t INVALID = 0;
 	  }
 	  return false;
 	}
+
+  template<typename T>
+  void cloneTag(const Data& src, const Data& dst){
+		shared_ptr<T> srcTag = src.getTag<T>();
+		if(nullptr != srcTag){
+			dst.setTag(srcTag);
+		}
+	}
+	//\sa ndn-cxx/lp/tags.hpp
+  void cloneTags(const Data&src, const Data& dst){
+		cloneTag<lp::FunctionTag>(src, dst);
+		cloneTag<lp::IncomingFaceIdTag>(src, dst);
+		cloneTag<lp::NextHopFaceIdTag>(src, dst);
+		cloneTag<lp::CachePolicyTag>(src, dst);
+		cloneTag<lp::CongestionMarkTag>(src, dst);
+		cloneTag<lp::NonDiscoveryTag>(src, dst);
+		cloneTag<lp::PrefixAnnouncementTag>(src, dst);
+		cloneTag<lp::HopCountTag>(src, dst);
+	}
   shared_ptr<Data> cloneData(const Data& data){
 		auto newData = make_shared<Data>(data.getName());
 		newData->wireDecode(data.wireEncode());
+		cloneTags(data, *newData);
 		return newData;
 	}
 
 	bool isFunctionExecuted(const Data& data){
-	  if (& data == nullptr){
-		return false;
-	  }
-	  auto tag = data.getTag<lp::FunctionTag>();
-	  if (tag == nullptr) {
-		// no tag
-		return false;
-	  } else {
-		uint64_t tagValue = tag->get();
-		return tagValue == nfd::SnakeComputing::FUNCTION_EXECUTED;
-	  }
-	  return false;
+	  shared_ptr<lp::FunctionTag> tag = data.getTag<lp::FunctionTag>();
+	  return (tag != nullptr) && (*tag == nfd::SnakeComputing::FUNCTION_EXECUTED);
 	}
 
 	void markFunctionAsExecuted(Interest& interest){
@@ -80,7 +90,6 @@ const std::uint16_t INVALID = 0;
 
  	void markFunctionAsExecuted(Data& data){
 	  data.setTag(make_shared<lp::FunctionTag>(nfd::SnakeComputing::FUNCTION_EXECUTED));
-
 	}
 	void tryToMarkAsFunction(Interest& interest){
 		if(isBelong2SnakeSystem(interest)){
@@ -144,7 +153,7 @@ const std::uint16_t INVALID = 0;
         std::string results = "results";
         newData.setContent(::ndn::encoding::makeStringBlock(::ndn::tlv::Content, results));
     	  markFunctionAsExecuted(newData);
-        //std::cout<<"<< Wire data: " << newData.getContent().wire() << std::endl;
+				
 	}
 
 	bool canExecuteFunction(const Data &data){
