@@ -38,6 +38,11 @@ enum SnakeComputing:uint64_t{
   FUNCTION_EXECUTED = 2,
   FUNCTION_PARTIAL_EXECUTED = 3,
 };
+enum DataPushOptions:uint64_t{
+  REGULAR = 0,
+  NEED_PUSH = 1,
+  PUSH = 2,
+};
 const std::string SNAKE_SEPARATOR = "snake";
 const std::string DEFAULT_OPERATOR_REQUIREMENTS = "{\"cpu\":100, \"mem\":20}";
 

@@ -330,6 +330,20 @@ public: // element access
    */
   Interest&
   unsetApplicationParameters();
+  
+  int
+  isLongLived() const
+  {
+    return m_longLived;
+  }
+
+  Interest& setLongLived(bool longLived)
+  {
+
+    m_longLived = longLived;
+    m_wire.reset();
+    return *this;
+  }
 
 public: // ParametersSha256DigestComponent support
   static bool
@@ -398,7 +412,7 @@ private:
   mutable bool m_isCanBePrefixSet = false;
   bool m_canBePrefix = true;
   bool m_mustBeFresh = false;
-
+  bool m_longLived = false;
   // Stores the "Interest parameters", i.e., all maybe-unrecognized non-critical TLV
   // elements that appear at the end of the Interest, starting from ApplicationParameters.
   // If the Interest does not contain any ApplicationParameters TLV, this vector will

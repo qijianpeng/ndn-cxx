@@ -21,7 +21,6 @@
 
 #ifndef NDN_CXX_LP_FIELDS_HPP
 #define NDN_CXX_LP_FIELDS_HPP
-
 #include "ndn-cxx/lp/field-decl.hpp"
 
 #include "ndn-cxx/lp/cache-policy.hpp"
@@ -137,6 +136,60 @@ typedef FieldDecl<field_location_tags::Header,
 		uint64_t, tlv::TlvFunction> FunctionTagField;
 BOOST_CONCEPT_ASSERT((Field<FunctionTagField>));
 
+/** \class SessionTagField
+ *  \brief a packet tag for SessionTagField field
+ *
+ *  This tag can be attached to Interest, Data, Nack.
+ */
+typedef FieldDecl<field_location_tags::Header,
+		uint64_t, tlv::SessionId> SessionTagField;
+BOOST_CONCEPT_ASSERT((Field<SessionTagField>));
+
+/** \class DataPushTagField
+ *  \brief a packet tag for DataPushTagField field
+ *
+ *  This tag can be attached to Interest, Data, Nack.
+ */
+typedef FieldDecl<field_location_tags::Header,
+		uint64_t, tlv::DataPush> DataPushTagField;
+BOOST_CONCEPT_ASSERT((Field<DataPushTagField>));
+
+/** \class MetaDataTagField
+ *  \brief a packet tag for MetaDataTagField field
+ *
+ *  This tag can be attached to Data.
+ */
+typedef FieldDecl<field_location_tags::Header,
+		uint64_t, tlv::MetaData> MetaDataTagField;
+BOOST_CONCEPT_ASSERT((Field<MetaDataTagField>));
+
+/** \class MinCostMarkerTagField
+ *  \brief a packet tag for MinCostMarkerTagField field
+ *
+ *  This tag can be attached to Data.
+ */
+typedef FieldDecl<field_location_tags::Header,
+		uint64_t, tlv::MinCostMarker> MinCostMarkerTagField;
+BOOST_CONCEPT_ASSERT((Field<MinCostMarkerTagField>));
+/** \class MinCostTagField
+ *  \brief a packet tag for MinCostTagField field
+ *
+ *  This tag can be attached to Data.
+ */
+typedef FieldDecl<field_location_tags::Header,
+		uint64_t, tlv::MinCost> MinCostTagField;
+BOOST_CONCEPT_ASSERT((Field<MinCostTagField>));
+
+/** \class ProcessingTimeTagField
+ *  \brief a packet tag for DataPushTagField field
+ *
+ *  This tag can be attached to Interest, Data, Nack.
+ */
+typedef FieldDecl<field_location_tags::Header,
+		uint64_t, tlv::ProcessingTime> ProcessingTimeTagField;
+BOOST_CONCEPT_ASSERT((Field<ProcessingTimeTagField>));
+
+
 /** \brief Declare the Fragment field.
  *
  *  The fragment (i.e. payload) is the bytes between two provided iterators. During encoding,
@@ -166,9 +219,16 @@ typedef boost::mpl::set<
   PrefixAnnouncementField,
   HopCountTagField,
   GeoTagField,
-  FunctionTagField
-  > FieldSet;
-
+  FunctionTagField,
+  SessionTagField, // < issues/21
+  DataPushTagField, //< issues/21
+  ProcessingTimeTagField
+  > FieldSet0;
+//boost set default size is `20`, which is too small for snake usage. Using the following
+//way instead.
+typedef boost::mpl::insert<FieldSet0, MetaDataTagField>::type FieldSet1;
+typedef boost::mpl::insert<FieldSet1, MinCostMarkerTagField>::type FieldSet2;
+typedef boost::mpl::insert<FieldSet2, MinCostTagField>::type FieldSet;
 } // namespace lp
 } // namespace ndn
 

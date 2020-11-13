@@ -50,7 +50,14 @@ enum {
   TxSequence = 840,
   NonDiscovery = 844,
   PrefixAnnouncement = 848,
-  TlvFunction = 901,
+  TlvFunction = 901, //< Check cloneTags in snake-utils.cpp after adding new tag!!!!!!!!
+  SessionId = 902,
+  DataPush = 903,
+  ProcessingTime = 904,
+  MinCostMarker = 905,
+  MinCost = 906,
+  MetaData = 200, // MetaInfo tag in Data range [128, 252], see ndn-cxx/meta-info.hpp
+  AppParasInData = 201,
 };
 
 enum {

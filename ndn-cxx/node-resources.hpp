@@ -11,14 +11,14 @@
  * Requirement: Install the RapidJSON(https://github.com/Tencent/rapidjson) into your `include` lib.
  * Steps:
  * \code{.sh}
- *   git clone https://github.com/Tencent/rapidjson.git 
- *   cd rapidjson/
- *   git submodule update --init
- *   mkdir build
- *   cd build
- *   cmake ..
- *   make
- *   make install
+     git clone https://github.com/Tencent/rapidjson.git 
+     cd rapidjson/
+     git submodule update --init
+     mkdir build
+     cd build
+     cmake ..
+     make
+     make install
  * \endcode
  * Usage:
  * \code{.cpp}

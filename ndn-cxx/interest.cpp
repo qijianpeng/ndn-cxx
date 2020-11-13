@@ -104,6 +104,7 @@ Interest::wireEncode(EncodingImpl<TAG>& encoder) const
   //              [Nonce]
   //              [InterestLifetime]
   //              [HopLimit]
+  //              [LongLived]
   //              [ApplicationParameters [InterestSignature]]
   // (elements are encoded in reverse order)
 
@@ -124,6 +125,11 @@ Interest::wireEncode(EncodingImpl<TAG>& encoder) const
   std::for_each(m_parameters.rbegin(), m_parameters.rend(), [&] (const Block& b) {
     totalLength += encoder.prependBlock(b);
   });
+
+  //LongLivedInterest
+  if(isLongLived()) {
+    totalLength += prependEmptyBlock(encoder, tlv::LongLivedInterest);
+  }
 
   // HopLimit
   if (getHopLimit()) {
@@ -218,7 +224,7 @@ Interest::wireDecode(const Block& wire)
   m_name = std::move(tempName);
 
   m_isCanBePrefixSet = true; // don't trigger warning from decoded packet
-  m_canBePrefix = m_mustBeFresh = false;
+  m_canBePrefix = m_mustBeFresh = m_longLived = false;
   m_forwardingHint = {};
   m_nonce.reset();
   m_interestLifetime = DEFAULT_INTEREST_LIFETIME;
@@ -290,13 +296,24 @@ Interest::wireDecode(const Block& wire)
         lastElement = 7;
         break;
       }
+      case tlv::LongLivedInterest: {
+        if(lastElement >= 8) {
+          NDN_THROW(Error("LongLivedInterest element is out of order"));
+        }
+        if(element->value_size() != 0) {
+          NDN_THROW(Error("LongLivedInterest element has non-zero TLV_LENGTH"));
+        }
+        m_longLived = true;
+        lastElement = 8;
+        break;
+      }
       case tlv::ApplicationParameters: {
-        if (lastElement >= 8) {
+        if (lastElement >= 9) {
           break; // ApplicationParameters is non-critical, ignore out-of-order appearance
         }
         BOOST_ASSERT(!hasApplicationParameters());
         m_parameters.push_back(*element);
-        lastElement = 8;
+        lastElement = 9;
         break;
       }
       default: { // unrecognized element
@@ -621,6 +638,9 @@ operator<<(std::ostream& os, const Interest& interest)
   }
   if (interest.getHopLimit()) {
     printOne("HopLimit=", static_cast<unsigned>(*interest.getHopLimit()));
+  }
+  if(interest.isLongLived()){
+    printOne("isLongLived");
   }
 
   return os;

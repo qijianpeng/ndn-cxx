@@ -9,6 +9,12 @@
 #define NDN_UTIL_SNAKE_UTILS_HPP
 
 #include "ndn-cxx/interest.hpp"
+#include "ns3/computation-module.h"
+#include "ns3/core-module.h"
+#include "ns3/node-list.h"
+
+#include "ns3/node.h"
+#include "ns3/ptr.h"
 
 namespace ndn{
 namespace snake{
@@ -45,14 +51,33 @@ bool isFunctionExecuted(const Data& data);
  * Path.
  */
 void removeFunctionTag(const Data& data);
-std::tuple<std::string, std::string> extractFunctionNameAndParameters(std::string& str);
-void functionInvoke(const Data& data, std::string functionName, std::string functionParameters);
+std::string extractFunctionName(std::string& str);
+
+uint64_t functionInvoke(ns3::Ptr<ns3::Node> &node, Data& data, std::string functionName, std::string functionParameters);
 bool canExecuteFunction(const Data &data);
 void afterFunctionInvoke(Data& newData);
 bool isBelong2SnakeSystem(const Interest& interest);
 bool isBelong2SnakeSystem(const Data& data);
+void tryToMarkAsFunction(Interest& interest);
+Name recombineNameWithSessionId(const Name &nameWithAllComponents, const uint64_t sessionId);
 shared_ptr<Data> cloneData(const Data& data);
+/**
+ * \brief Inject a ssesion id into `Interest`, `Data`, `Nack`
+ * 
+ * \param tagHost 
+ * \param sessionId 
+ */
+void injectSessionId(const TagHost & tagHost, const uint64_t sessionId,
+                    uint64_t (*accumulationFunc)(uint64_t, uint64_t));
+uint64_t xorOperator(uint64_t a, uint64_t b);
+ns3::SysInfo* getCurrentNodeSysInfo(void);
 std::string unescape( std::string str);
+
+
+uint64_t costEstimator(const Interest &interest, const Data& data, ns3::Ptr<ns3::Node> & currentNode);
+
+uint64_t
+hashing(const std::string function, const std::string functionParas, const uint64_t nodeId) ;
 }
 }//namespace snake
 } //namespace ndn

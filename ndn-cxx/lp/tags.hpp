@@ -87,12 +87,59 @@ typedef SimpleTag<uint64_t, 0x60000000> HopCountTag;
  */
 class GeoTag; // 0x60000001, defined directly in geo-tag.hpp
 /**
- * \class FuntionExecutedTag
+ * \class FuntionTag
  * \brief a packet tag for FunctionExecutedTag
  *
  *  This tag can be attached to Interest, Data, Nack.
  */
 typedef SimpleTag<uint64_t, 0x60000010> FunctionTag;
+
+/**
+ * \class SessionTag
+ * \brief a packet tag for session support.
+ * 
+ * This tag can be attached to Interest, Data, Nack.
+ * 
+ */
+typedef SimpleTag<uint64_t, 0x60000011> SessionTag;
+
+/**
+ * \class DataPushTag
+ * \brief a packet tag for pusing data.
+ * 
+ * This tag can be attached to Interest, Data, Nack.
+ * 
+ */
+typedef SimpleTag<uint64_t, 0x60000012> DataPushTag;
+
+/**
+ * \class ProcessingTimeTag
+ * \brief a packet tag for the time of executing function.
+ * 
+ * This tag can be attached to Data.
+ * issue #25
+ */
+typedef SimpleTag<uint64_t, 0x60000013> ProcessingTimeTag;
+
+/**
+ * \brief a packet tag send to the client before transmitting data.
+ * 
+ * \class MinCostMarkerTag
+ * 
+ * This tag can be attached to Interest, Data, and marking the best function
+ * executing node.
+ * 
+ */
+typedef SimpleTag<uint64_t, 0x60000014> MinCostMarkerTag;
+typedef SimpleTag<uint64_t, 0x60000015> MinCostTag;
+/**
+ * \brief a packet tag represent the Data just contains MetaData
+ * \class MetaDataTag
+ * 
+ * This tag can be attached to Data.
+ */
+typedef SimpleTag<uint64_t, 0x60000016> MetaDataTag;
+
 } // namespace lp
 } // namespace ndn
 
