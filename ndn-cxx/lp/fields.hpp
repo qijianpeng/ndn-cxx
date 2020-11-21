@@ -189,6 +189,15 @@ typedef FieldDecl<field_location_tags::Header,
 		uint64_t, tlv::ProcessingTime> ProcessingTimeTagField;
 BOOST_CONCEPT_ASSERT((Field<ProcessingTimeTagField>));
 
+/** \class HopDelayTagField
+ *  \brief a packet tag for DataPushTagField field
+ *
+ *  This tag can be attached to Interest, Data, Nack.
+ */
+typedef FieldDecl<field_location_tags::Header,
+		uint64_t, tlv::HopDelay> HopDelayTagField;
+BOOST_CONCEPT_ASSERT((Field<HopDelayTagField>));
+
 
 /** \brief Declare the Fragment field.
  *
@@ -228,7 +237,8 @@ typedef boost::mpl::set<
 //way instead.
 typedef boost::mpl::insert<FieldSet0, MetaDataTagField>::type FieldSet1;
 typedef boost::mpl::insert<FieldSet1, MinCostMarkerTagField>::type FieldSet2;
-typedef boost::mpl::insert<FieldSet2, MinCostTagField>::type FieldSet;
+typedef boost::mpl::insert<FieldSet2, HopDelayTagField>::type FieldSet3;
+typedef boost::mpl::insert<FieldSet3, MinCostTagField>::type FieldSet;
 } // namespace lp
 } // namespace ndn
 

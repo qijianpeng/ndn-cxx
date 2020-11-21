@@ -140,6 +140,7 @@ typedef SimpleTag<uint64_t, 0x60000015> MinCostTag;
  */
 typedef SimpleTag<uint64_t, 0x60000016> MetaDataTag;
 
+typedef SimpleTag<uint64_t,  0x60000017> HopDelayTag;
 } // namespace lp
 } // namespace ndn
 

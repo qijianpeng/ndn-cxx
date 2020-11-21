@@ -78,6 +78,7 @@ uint64_t costEstimator(const Interest &interest, const Data& data, ns3::Ptr<ns3:
 
 uint64_t
 hashing(const std::string function, const std::string functionParas, const uint64_t nodeId) ;
+
 }
 }//namespace snake
 } //namespace ndn

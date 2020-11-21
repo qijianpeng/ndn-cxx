@@ -58,6 +58,7 @@ enum {
   MinCost = 906,
   MetaData = 200, // MetaInfo tag in Data range [128, 252], see ndn-cxx/meta-info.hpp
   AppParasInData = 201,
+  HopDelay = 907, //< hop-by-hop delay
 };
 
 enum {

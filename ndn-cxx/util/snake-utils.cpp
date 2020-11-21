@@ -106,6 +106,7 @@ const std::uint16_t INVALID = 0;
 		cloneTag<lp::MinCostTag>(src, dst);
 		cloneTag<lp::MinCostMarkerTag>(src, dst);
 		cloneTag<lp::ProcessingTimeTag>(src, dst);
+		cloneTag<lp::HopDelayTag>(src, dst);
 	}
   shared_ptr<Data> cloneData(const Data& data){
 		auto newData = make_shared<Data>(data.getName());
@@ -146,7 +147,6 @@ const std::uint16_t INVALID = 0;
 	void removeFunctionTag(const Data& data){
     unsetTag<lp::FunctionTag>(data);
 	}
-
 
 	/**
 	 * Extract function name and its parameters.
@@ -298,7 +298,19 @@ costEstimator(const Interest &interest, const Data& data, ns3::Ptr<ns3::Node> & 
 	// siv.Set(siv.Get() - delta);
 	// cm->SetAttribute("SystemStateInfo", siv);
 	ns3::SysInfo sysinfo = siv.Get();
+	//TODO considering bandwidth cost.
+	//note I: original data passing the bottleneck cost size/bandwidth
+	//note II: bandwidth is different between uplink and downlink.
   costEta = costCalculateStrategy(sysinfo, *metadataWrapper.getMetadata(), paras);
+	auto sentTimeP = data.getTag<lp::HopDelayTag>();
+	if(nullptr != sentTimeP){
+		boost::uint64_t now = time::duration_cast<time::microseconds>(time::steady_clock::now().time_since_epoch()).count();
+		now = now & 0x00ffffffffffffff;
+		boost::uint64_t delay = (now - (*sentTimeP) & 0x00ffffffffffffff) / 1000;//miliseconds
+    costEta += delay; //TODO avg statistics.
+		// boost::uint64_t nodeId = (*delayP) >> 56;
+		data.removeTag<lp::HopDelayTag>();
+	}
 	return costEta;
 }
 
