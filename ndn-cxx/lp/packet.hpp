@@ -203,6 +203,11 @@ private:
 
 private:
   mutable Block m_wire;
+
+//FIXME(QJP): processing time logic should be in App level.
+//issues #25
+public:
+  uint64_t processingTime = 0;
 };
 
 } // namespace lp

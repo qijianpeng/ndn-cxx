@@ -421,7 +421,11 @@ public: // misc
   /** @brief Implicit conversion to `boost::asio::const_buffer`
    */
   operator boost::asio::const_buffer() const;
-
+   /**
+    * FIXME(QJP): processing time logic should be in App level
+    * issues #25
+    */
+  uint64_t processingTime = 0;
 private:
   /** @brief Estimate Block size as if sub-elements are encoded into TLV-VALUE
    */
