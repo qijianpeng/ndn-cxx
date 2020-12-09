@@ -28,6 +28,7 @@
 #include "rapidjson/stringbuffer.h"
 #include <iostream>
 #include <stdexcept>
+#include <string>
 #include <map>
 typedef std::map<std::string, std::string> StringMap;
 
@@ -45,11 +46,9 @@ namespace snake{
   }
 
 using namespace rapidjson;
-//TODO(qjp): Add a static method to get the 
-//           current system avaliable resources.
+
 class Parameters{
   public:
-    // static StringMap TYPE_MAPPING;
     Parameters(){};
     ~Parameters(){};
     const rapidjson::Value & DeSerialize(const std::string &str)
@@ -70,27 +69,14 @@ class Parameters{
       return buffer.GetString();
     }
 
-    PROPERTY_ACCESSOR_DEFINE(uint64_t, cpu, Uint64);
-    PROPERTY_ACCESSOR_DEFINE(uint64_t, mem, Uint64);
+    // PROPERTY_ACCESSOR_DEFINE(uint64_t, cpu, Uint64);
+    // PROPERTY_ACCESSOR_DEFINE(uint64_t, mem, Uint64);
+    PROPERTY_ACCESSOR_DEFINE(std::string, O, String);//< Time complexity
+    PROPERTY_ACCESSOR_DEFINE(std::string, S, String);//< Space complexity
 
-    // template<typename T>
-    // T getProperty(std::string & propertyName)
-    // {
-    //   if(doc.HasMember(propertyName)){
-    //     return 
-    //   }
-    // }
   private:
     rapidjson::Document doc;
-  //   static StringMap _TYPE_MAPPING(){
-  //     StringMap tmpMap ;
-  //     tmpMap["uint64_t"] = "Uint64";
-  //     tmpMap["std::string"] = "String";
-  //     return tmpMap;
-  // }
 };
-// StringMap Parameters::TYPE_MAPPING =  Parameters::_TYPE_MAPPING();
-
 }//namespace snake
 }//namespace ndn
 #endif

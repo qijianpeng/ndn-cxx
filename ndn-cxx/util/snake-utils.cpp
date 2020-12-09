@@ -165,6 +165,7 @@ const std::uint16_t INVALID = 0;
 	 * FIXME(qjp): now we just sleep a specefic time dual.
 	 * 
 	 * TODO 1. for concurrent execution, schedule method should be employed.
+	 * TODO 2. Should actually run the task.
 	 * @param functionParameters a long number.
 	 * @return process delay with ms.
 	 */
@@ -172,8 +173,21 @@ const std::uint16_t INVALID = 0;
 		
 		Parameters paras;
 		paras.DeSerialize(functionParameters);
-		uint64_t millisecond = paras.cpuUint64PropertyValue();
 		ns3::Ptr<ns3::ComputationModel> cm = node->GetObject<ns3::ComputationModel>();
+		// uint64_t millisecond = paras.cpuUint64PropertyValue();
+		uint64_t millisecond = 0;
+    std::string timeComplexity = paras.OStringPropertyValue();
+		std::string spaceComplexity = paras.SStringPropertyValue();
+		//computation cost
+		if("n" == timeComplexity){//O(n)
+      millisecond += uint64_t(1.0 * data.getContent().value_size() * 1000 / cm->GetSystemStateInfo().getCPU());
+		}
+		//io cost
+		if("n" == spaceComplexity){//S(n)
+		  //Asume 3,000 IOPS,  I/O size = 256KiB
+			//\sa https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-io-characteristics.html
+			millisecond += (data.getContent().value_size() * 1000 / (3000 * 256 * 1024 * 8));
+		}
 		data.setTag(make_shared<lp::ProcessingTimeTag>(millisecond));
 		afterFunctionInvoke(data);
 		return (uint64_t)millisecond;
@@ -181,6 +195,10 @@ const std::uint16_t INVALID = 0;
 
 	void afterFunctionInvoke(Data& newData){
         std::string results = "results";
+				auto processingTime = newData.getTag<lp::ProcessingTimeTag>();
+				if(processingTime != nullptr){
+					results = "results, with processing time(ms): " + std::to_string(*processingTime);
+				}
         newData.setContent(::ndn::encoding::makeStringBlock(::ndn::tlv::Content, results));
     	  markFunctionAsExecuted(newData);
 	}
@@ -301,15 +319,22 @@ costEstimator(const Interest &interest, const Data& data, ns3::Ptr<ns3::Node> & 
 	//TODO considering bandwidth cost.
 	//note I: original data passing the bottleneck cost size/bandwidth
 	//note II: bandwidth is different between uplink and downlink.
-  costEta = costCalculateStrategy(sysinfo, *metadataWrapper.getMetadata(), paras);
+  uint64_t costExecEta = costCalculateStrategy(sysinfo, *metadataWrapper.getMetadata(), paras);
+	costEta += costExecEta;
 	auto sentTimeP = data.getTag<lp::HopDelayTag>();
 	if(nullptr != sentTimeP){
 		boost::uint64_t now = time::duration_cast<time::microseconds>(time::steady_clock::now().time_since_epoch()).count();
 		now = now & 0x00ffffffffffffff;
-		boost::uint64_t delay = (now - (*sentTimeP) & 0x00ffffffffffffff) / 1000;//miliseconds
+		boost::uint64_t delay = (now - (*sentTimeP) & 0x00ffffffffffffff) ;//miliseconds
+		uint64_t filesize = metadataWrapper.getMetadata()->getValue<uint64_t>("size");
+		uint64_t headerSize = data.wireEncode().size() - data.getContent().size();
+		delay = (delay / data.wireEncode().size()) * (headerSize + filesize) / 1000; //< bps.
     costEta += delay; //TODO avg statistics.
-		// boost::uint64_t nodeId = (*delayP) >> 56;
-		data.removeTag<lp::HopDelayTag>();
+		std::string currentNodeName = ns3::Names::FindName(currentNode);
+		std::cout << "Estimated delay: total(" << costEta << "), Exec("<< costExecEta <<"), Transimit(" 
+							<< delay <<") on node ->" << currentNodeName
+						  << " dataname("<< data.getName().toUri() <<")"
+							<< std::endl;
 	}
 	return costEta;
 }

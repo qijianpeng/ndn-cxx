@@ -26,9 +26,21 @@ public:
     uint64_t filesize = metadata.getValue<uint64_t>("size");
     // std::cout<< "filesize: " << filesize << std::endl;
     // std::cout<< "node cpu: " << sysinfo.getCPU() << std::endl;
-
-    double t = 1.0 * filesize / sysinfo.getCPU();  //seconds
-    uint64_t cost = uint64_t(t * 1000); //ms
+    std::string timeComplexity = paras.OStringPropertyValue();
+		std::string spaceComplexity = paras.SStringPropertyValue();
+    uint64_t cost = 0;
+    if("n" == timeComplexity){//O(n)
+      //assume processing 1000b under 2GHz need 1000ms.
+      cost += uint64_t(filesize / (1.0 * sysinfo.getCPU()/(2.0 * 1024 * 1024 * 1024))); 
+      // std::cout << "Filesize: " << filesize << ", CPU ms: " << cost << ", CPU F(GHz): " << (1.0 * sysinfo.getCPU()/(2.0 * 1024 * 1024 * 1024))<< std::endl;
+		} else if("1" == timeComplexity){//O(1)
+      cost += 1;
+    }
+    if("n" == spaceComplexity){//S(n)
+		  //Assume 3,000 IOPS,  I/O size = 256KiB
+			//\sa https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-io-characteristics.html
+			cost += uint64_t(1.0 * filesize * 1000 / (3000 * 256 * 1024 * 8));
+		}
 	  return cost;
   }
 };
