@@ -18,6 +18,14 @@
 namespace ndn{
 namespace snake{
 namespace util{
+/**
+ * \brief A global value to scale the output.
+ * Usage: NS_GLOBAL_VALUE='Alpha=scalar'
+ */
+static ns3::GlobalValue g_outputAlpha = ns3::GlobalValue ("Alpha",
+                                                     "A global value to scale the output.",
+                                                     ns3::DoubleValue (0.1),
+                                                     ns3::MakeDoubleChecker<double> ());
 const std::uint16_t INVALID = 0;
   bool containsFunctionTag(const TagHost& tagHost)
 	{
@@ -199,7 +207,13 @@ const std::uint16_t INVALID = 0;
 				if(processingTime != nullptr){
 					results = "results, with processing time(ms): " + std::to_string(*processingTime);
 				}
-        newData.setContent(::ndn::encoding::makeStringBlock(::ndn::tlv::Content, results));
+
+				ns3::DoubleValue alpha;
+				g_outputAlpha.GetValue(alpha);
+				int size = (int) (newData.getContent().value_size() * alpha.Get());
+				auto buff = make_shared< ::ndn::Buffer>(size);
+        // newData.setContent(::ndn::encoding::makeStringBlock(::ndn::tlv::Content, results));
+				newData.setContent(buff);
     	  markFunctionAsExecuted(newData);
 	}
 
@@ -307,7 +321,7 @@ costEstimator(const Interest &interest, const Data& data, ns3::Ptr<ns3::Node> & 
 	const ndn::Block* snakeMetaDataBlock = data.getMetaInfo().findAppMetaInfo(lp::tlv::MetaData);
 	std::string snakeMetaDataStr = ndn::encoding::readString(*snakeMetaDataBlock);
   MetadataWrapper metadataWrapper(snakeMetaDataStr.c_str());
-	std::cout << metadataWrapper.Serialize() << std::endl;
+	// std::cout << metadataWrapper.Serialize() << std::endl;
 	// avaliable node resources
 	ns3::Ptr<ns3::ComputationModel> cm = currentNode->GetObject<ns3::ComputationModel>();
 	ns3::SysInfoValue siv;
@@ -331,10 +345,10 @@ costEstimator(const Interest &interest, const Data& data, ns3::Ptr<ns3::Node> & 
 		delay = (delay / data.wireEncode().size()) * (headerSize + filesize) / 1000; //< bps.
     costEta += delay; //TODO avg statistics.
 		std::string currentNodeName = ns3::Names::FindName(currentNode);
-		std::cout << "Estimated delay: total(" << costEta << "), Exec("<< costExecEta <<"), Transimit(" 
-							<< delay <<") on node ->" << currentNodeName
-						  << " dataname("<< data.getName().toUri() <<")"
-							<< std::endl;
+		// std::cout << "Estimated delay: total(" << costEta << "), Exec("<< costExecEta <<"), Transimit(" 
+		// 					<< delay <<") on node ->" << currentNodeName
+		// 				  << " dataname("<< data.getName().toUri() <<")"
+		// 					<< std::endl;
 	}
 	return costEta;
 }
