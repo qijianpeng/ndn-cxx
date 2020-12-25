@@ -36,6 +36,10 @@ operator<<(std::ostream& os, NackReason reason)
     return os << "Duplicate";
   case NackReason::NO_ROUTE:
     return os << "NoRoute";
+  case NackReason::CACHE_LOCAL:
+    return os << "LocalCache";
+  case NackReason::PRODUCER_LOCAL:
+    return os << "LocalProducer";
   default:
     return os << "None";
   }
@@ -125,6 +129,8 @@ NackHeader::getReason() const
   case NackReason::CONGESTION:
   case NackReason::DUPLICATE:
   case NackReason::NO_ROUTE:
+  case NackReason::PRODUCER_LOCAL:
+  case NackReason::CACHE_LOCAL:
     return m_reason;
   default:
     return NackReason::NONE;

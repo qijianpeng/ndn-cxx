@@ -26,6 +26,11 @@ static ns3::GlobalValue g_outputAlpha = ns3::GlobalValue ("Alpha",
                                                      "A global value to scale the output.",
                                                      ns3::DoubleValue (0.1),
                                                      ns3::MakeDoubleChecker<double> ());
+static ns3::GlobalValue g_ComputingMode = ns3::GlobalValue ("ComputingMode",
+                                                     "A global value to scale the output.",
+                                                     ns3::StringValue ("auto"),
+                                                     ns3::MakeStringChecker());//auto, client, producer
+
 const std::uint16_t INVALID = 0;
   bool containsFunctionTag(const TagHost& tagHost)
 	{
@@ -72,7 +77,7 @@ const std::uint16_t INVALID = 0;
 	}
 
   template<typename T>
-  void cloneTag(const Data& src, const Data& dst){
+  void cloneTag(const TagHost& src, const TagHost& dst){
 		shared_ptr<T> srcTag = src.getTag<T>();
 		if(nullptr != srcTag){
 			dst.setTag(srcTag);
@@ -81,7 +86,7 @@ const std::uint16_t INVALID = 0;
 
 	template<typename T>
 	void setTag(const TagHost& tagHost, shared_ptr<T> tag){
-		tag.setTag(make_shared<T>(tag));
+		tagHost.setTag(make_shared<T>(tag));
 	}
 
   template<typename T>
@@ -98,7 +103,7 @@ const std::uint16_t INVALID = 0;
 	}
 
 	//\sa ndn-cxx/lp/tags.hpp
-  void cloneTags(const Data&src, const Data& dst){
+  void cloneTags(const TagHost&src, const TagHost& dst){
 
 		cloneTag<lp::FunctionTag>(src, dst);
 		cloneTag<lp::IncomingFaceIdTag>(src, dst);
@@ -116,6 +121,7 @@ const std::uint16_t INVALID = 0;
 		cloneTag<lp::ProcessingTimeTag>(src, dst);
 		cloneTag<lp::HopDelayTag>(src, dst);
 	}
+	
   shared_ptr<Data> cloneData(const Data& data){
 		auto newData = make_shared<Data>(data.getName());
 		newData->wireDecode(data.wireEncode());
@@ -168,7 +174,13 @@ const std::uint16_t INVALID = 0;
       return functionName;
 	}
 
-
+uint64_t costCalculateStrategy(ns3::SysInfo& sysInfo, SnakeMetadata& metadata, Parameters& paras)
+{
+  uint64_t cost = std::numeric_limits<uint64_t>::max();
+  ndn::snake::JointlyCalculator* calc = CalculatorContainer::getInstance(metadata.getFileType());
+  cost = calc->costCalculate(sysInfo, metadata, paras);
+	return cost;
+}
   /**
 	 * FIXME(qjp): now we just sleep a specefic time dual.
 	 * 
@@ -178,24 +190,18 @@ const std::uint16_t INVALID = 0;
 	 * @return process delay with ms.
 	 */
 	uint64_t functionInvoke(ns3::Ptr<ns3::Node> &node, Data& data, std::string functionName, std::string functionParameters){
-		
+			// metadata
+		const ndn::Block* snakeMetaDataBlock = data.getMetaInfo().findAppMetaInfo(lp::tlv::MetaData);
+		std::string snakeMetaDataStr = ndn::encoding::readString(*snakeMetaDataBlock);
+		MetadataWrapper metadataWrapper(snakeMetaDataStr.c_str());
 		Parameters paras;
 		paras.DeSerialize(functionParameters);
 		ns3::Ptr<ns3::ComputationModel> cm = node->GetObject<ns3::ComputationModel>();
-		// uint64_t millisecond = paras.cpuUint64PropertyValue();
-		uint64_t millisecond = 0;
-    std::string timeComplexity = paras.OStringPropertyValue();
-		std::string spaceComplexity = paras.SStringPropertyValue();
-		//computation cost
-		if("n" == timeComplexity){//O(n)
-      millisecond += uint64_t(1.0 * data.getContent().value_size() * 1000 / cm->GetSystemStateInfo().getCPU());
-		}
-		//io cost
-		if("n" == spaceComplexity){//S(n)
-		  //Asume 3,000 IOPS,  I/O size = 256KiB
-			//\sa https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-io-characteristics.html
-			millisecond += (data.getContent().value_size() * 1000 / (3000 * 256 * 1024 * 8));
-		}
+		ns3::SysInfoValue siv;
+		cm->GetAttribute("SystemStateInfo", siv);
+		ns3::SysInfo sysinfo = siv.Get();
+		uint64_t millisecond = costCalculateStrategy(sysinfo, *metadataWrapper.getMetadata(), paras);
+    
 		data.setTag(make_shared<lp::ProcessingTimeTag>(millisecond));
 		afterFunctionInvoke(data);
 		return (uint64_t)millisecond;
@@ -301,13 +307,7 @@ Name recombineNameWithSessionId(const Name &nameWithAllComponents, const uint64_
 	return name;
 }
 
-uint64_t costCalculateStrategy(ns3::SysInfo& sysInfo, SnakeMetadata& metadata, Parameters& paras)
-{
-  uint64_t cost = std::numeric_limits<uint64_t>::max();
-  ndn::snake::JointlyCalculator* calc = CalculatorContainer::getInstance(metadata.getFileType());
-  cost = calc->costCalculate(sysInfo, metadata, paras);
-	return cost;
-}
+
 
 uint64_t
 costEstimator(const Interest &interest, const Data& data, ns3::Ptr<ns3::Node> & currentNode){
@@ -326,9 +326,6 @@ costEstimator(const Interest &interest, const Data& data, ns3::Ptr<ns3::Node> & 
 	ns3::Ptr<ns3::ComputationModel> cm = currentNode->GetObject<ns3::ComputationModel>();
 	ns3::SysInfoValue siv;
 	cm->GetAttribute("SystemStateInfo", siv);
-  // ns3::SysInfo delta(10,10);
-	// siv.Set(siv.Get() - delta);
-	// cm->SetAttribute("SystemStateInfo", siv);
 	ns3::SysInfo sysinfo = siv.Get();
 	//TODO considering bandwidth cost.
 	//note I: original data passing the bottleneck cost size/bandwidth

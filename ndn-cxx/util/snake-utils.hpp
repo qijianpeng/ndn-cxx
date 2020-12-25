@@ -61,6 +61,7 @@ bool isBelong2SnakeSystem(const Data& data);
 void tryToMarkAsFunction(Interest& interest);
 Name recombineNameWithSessionId(const Name &nameWithAllComponents, const uint64_t sessionId);
 shared_ptr<Data> cloneData(const Data& data);
+void cloneTags(const TagHost&src, const TagHost& dst);
 /**
  * \brief Inject a ssesion id into `Interest`, `Data`, `Nack`
  * 
